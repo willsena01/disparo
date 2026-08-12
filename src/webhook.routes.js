@@ -99,22 +99,29 @@ webhookRouter.post('/', jsonWithRawBody, async (req, res) => {
 
   if (req.body?.object !== 'page') return res.sendStatus(200);
 
-  // 200 primeiro, processamento depois: a Meta reentrega o evento se a resposta
-  // demorar, e um fluxo pode levar segundos. A trava contra a reentrega que
-  // ainda assim acontecer é o UNIQUE em comments.comment_id.
-  res.sendStatus(200);
-
-  // Dois campos no mesmo payload: `feed` são comentários (disparam fluxo),
-  // `messaging` são entrega, leitura e resposta do lead (alimentam relatório e
-  // a janela de 24h). Um não pode derrubar o outro.
-  Promise.allSettled([
+  // Processar ANTES de responder.
+  //
+  // A versão anterior respondia 200 e processava depois — o padrão certo num
+  // servidor que fica de pé. Em serverless (Vercel) a invocação é congelada
+  // assim que a resposta sai: o comentário chegava, era aceito, e o fluxo
+  // simplesmente não rodava. Sem erro, sem log, sem nada.
+  //
+  // Responder depois custa latência, e a Meta reentrega se demorarmos. Isso é
+  // seguro: o UNIQUE em comments.comment_id faz a segunda entrega virar no-op,
+  // então no pior caso trabalhamos duas vezes — nunca disparamos duas.
+  //
+  // Os dois campos vão juntos e isolados: `feed` são comentários (disparam
+  // fluxo), `messaging` é entrega/leitura/resposta do lead. Um não pode
+  // derrubar o outro.
+  const resultados = await Promise.allSettled([
     handleWebhookPayload(req.body),
     handleMessagingPayload(req.body),
-  ]).then((rs) => {
-    for (const r of rs) {
-      if (r.status === 'rejected') console.error('[webhook] falha ao processar payload:', r.reason);
-    }
-  });
+  ]);
+  for (const r of resultados) {
+    if (r.status === 'rejected') console.error('[webhook] falha ao processar payload:', r.reason);
+  }
+
+  res.sendStatus(200);
 });
 
 // Redirecionador de link rastreado. Fica fora de /api de propósito: essa URL
@@ -132,10 +139,15 @@ trackingRouter.get('/:token', async (req, res) => {
 
   if (!link) return res.status(404).send('Link não encontrado ou expirado.');
 
-  // Redireciona primeiro, contabiliza depois: a pessoa clicou num link seu, e
-  // uma falha ao gravar a métrica não pode virar página de erro pra ela.
-  res.redirect(302, link.target_url);
-  registrarClique(link).catch((err) =>
+  // Contabiliza ANTES de redirecionar — mesma armadilha do webhook: em
+  // serverless a invocação morre junto com a resposta, e o clique gravado
+  // "depois" nunca chega ao banco. Custa alguns milissegundos no redirect.
+  //
+  // O erro continua engolido de propósito: a pessoa clicou num link seu, e
+  // falhar em gravar a métrica não pode virar página de erro pra ela.
+  await registrarClique(link).catch((err) =>
     console.error('[tracking] clique não contabilizado:', err)
   );
+
+  res.redirect(302, link.target_url);
 });
