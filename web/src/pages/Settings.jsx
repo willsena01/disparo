@@ -198,6 +198,8 @@ function AppCard({ app, onExcluir, onReativar }) {
         <span>App Secret {app.appSecretMasked}</span>
       </div>
 
+      <SinalDoWebhook app={app} />
+
       {pct != null ? (
         <>
           <div className="limite-barra">
@@ -214,6 +216,11 @@ function AppCard({ app, onExcluir, onReativar }) {
       )}
 
       <style>{`
+        .sinal { border-radius: 8px; padding: 9px 11px; font-size: 12px; line-height: 1.5; }
+        .sinal-ruim { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; }
+        .sinal-parcial { background: #fefce8; border: 1px solid #fde68a; color: #854d0e; }
+        .sinal-bom { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+        .sinal strong { font-weight: 600; }
         .app-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
         .app-head { display: flex; align-items: center; gap: 8px; }
         .app-nome { font-size: 13.5px; font-weight: 600; }
@@ -229,6 +236,64 @@ function AppCard({ app, onExcluir, onReativar }) {
         }
       `}</style>
     </div>
+  );
+}
+
+// Sinal de vida do webhook.
+//
+// "O fluxo não disparou" tem causas muito diferentes e a tela era a mesma para
+// todas. Estes dois carimbos separam as três primeiras — que são as que o
+// operador resolve sozinho, no painel da Meta.
+function SinalDoWebhook({ app }) {
+  const quando = (iso) => {
+    const min = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (min < 1) return 'agora há pouco';
+    if (min < 60) return `há ${min} min`;
+    if (min < 1440) return `há ${Math.round(min / 60)} h`;
+    return new Date(iso).toLocaleString('pt-BR');
+  };
+
+  if (!app.webhookVerifiedAt) {
+    return (
+      <p className="sinal sinal-ruim">
+        <strong>A Meta nunca chamou este webhook.</strong> A URL de callback ainda não foi
+        cadastrada no painel do app — sem isso nenhum comentário chega, por mais que as páginas
+        estejam conectadas. Vá em <em>Webhooks → Página → Inscrever-se neste objeto</em> e cole a
+        Callback URL e o Token de verificação que estão logo abaixo.
+      </p>
+    );
+  }
+
+  if (!app.lastWebhookAt) {
+    return (
+      <p className="sinal sinal-parcial">
+        <strong>URL verificada {quando(app.webhookVerifiedAt)}, mas nenhum evento chegou.</strong>{' '}
+        Salvar a URL não inscreve nos campos: volte em <em>Webhooks → Página</em> e clique
+        <strong> Inscrever-se</strong> na linha do campo <code>feed</code> — é ele que carrega os
+        comentários.
+      </p>
+    );
+  }
+
+  // Chegou evento, mas nunca do tipo que dispara fluxo. Acontece quando só os
+  // campos de mensagem foram assinados e `feed` ficou de fora.
+  if (app.lastWebhookKind && app.lastWebhookKind !== 'feed') {
+    return (
+      <p className="sinal sinal-parcial">
+        <strong>Eventos chegando ({quando(app.lastWebhookAt)}), mas o último foi{' '}
+        <code>{app.lastWebhookKind}</code>, não <code>feed</code>.</strong>{' '}
+        Comentário só chega pelo campo <code>feed</code> — confira se ele está assinado em
+        <em> Webhooks → Página</em>.
+      </p>
+    );
+  }
+
+  return (
+    <p className="sinal sinal-bom">
+      <strong>Webhook ativo.</strong> Último evento recebido {quando(app.lastWebhookAt)}
+      {app.lastWebhookKind ? ` (${app.lastWebhookKind})` : ''}. Se mesmo assim um comentário não
+      disparou, o problema está no gatilho do fluxo, não na conexão.
+    </p>
   );
 }
 

@@ -109,6 +109,11 @@ function toPublic(app) {
     blockedAt: app.blocked_at,
     blockedReason: app.blocked_reason,
     createdAt: app.created_at,
+    // Sinal de vida do webhook: separa "a Meta nunca chamou" de "chamou, mas o
+    // que chegou não era comentário".
+    webhookVerifiedAt: app.webhook_verified_at ?? null,
+    lastWebhookAt: app.last_webhook_at ?? null,
+    lastWebhookKind: app.last_webhook_kind ?? null,
   };
 }
 

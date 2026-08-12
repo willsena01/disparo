@@ -3,8 +3,41 @@ import { findAppByVerifyToken, verifySignature } from './facebookApps.js';
 import { handleWebhookPayload } from './facebook.webhook.js';
 import { handleMessagingPayload } from './messagingEvents.js';
 import { buscarLink, registrarClique } from './tracking.js';
+import { pool } from './db/pool.js';
 
 export const webhookRouter = express.Router();
+
+// Que tipo de evento a Meta mandou. O nome do campo (`feed`, `messages`…) é o
+// que distingue "chegou comentário" de "chegou confirmação de leitura" — e é
+// justamente essa diferença que o operador precisa ver quando nada dispara.
+function tipoDoEvento(body) {
+  const mudancas = body?.entry?.[0]?.changes;
+  if (Array.isArray(mudancas) && mudancas[0]?.field) return mudancas[0].field;
+  if (body?.entry?.[0]?.messaging) return 'messaging';
+  return body?.object ?? 'desconhecido';
+}
+
+// Os carimbos são diagnóstico, não regra de negócio: se a gravação falhar, o
+// evento precisa seguir sendo processado. Por isso os erros ficam no log e não
+// sobem.
+async function registrarVerificacao(appId) {
+  try {
+    await pool.query('UPDATE facebook_apps SET webhook_verified_at = now() WHERE id = $1', [appId]);
+  } catch (err) {
+    console.error('[webhook] não consegui carimbar a verificação:', err.message);
+  }
+}
+
+async function registrarEntrega(appId, tipo) {
+  try {
+    await pool.query(
+      'UPDATE facebook_apps SET last_webhook_at = now(), last_webhook_kind = $2 WHERE id = $1',
+      [appId, tipo]
+    );
+  } catch (err) {
+    console.error('[webhook] não consegui carimbar a entrega:', err.message);
+  }
+}
 
 // Guarda o corpo cru: a assinatura da Meta é o HMAC dos bytes exatos que
 // chegaram. Reserializar o JSON depois do parse muda o byte a byte (ordem de
@@ -32,6 +65,10 @@ webhookRouter.get('/', async (req, res) => {
       return res.sendStatus(403);
     }
     console.log(`[webhook] verificado para o app "${app.name}"`);
+    // Carimba que a Meta chegou até aqui. É a prova de que a URL foi mesmo
+    // cadastrada no painel — sem isso, "não disparou" e "nunca configurei o
+    // webhook" são a mesma tela em branco.
+    await registrarVerificacao(app.id);
     return res.type('text/plain').send(String(challenge ?? ''));
   } catch (err) {
     console.error('[webhook] erro na verificação:', err);
@@ -54,6 +91,11 @@ webhookRouter.post('/', jsonWithRawBody, async (req, res) => {
     console.warn('[webhook] payload recusado: X-Hub-Signature-256 inválida');
     return res.sendStatus(403);
   }
+
+  // Registra a chegada ANTES de filtrar por object/tipo: um evento que a gente
+  // ignora ainda é prova de que a Meta está entregando. Confundir "não chegou
+  // nada" com "chegou coisa que eu não trato" custa horas de procura.
+  await registrarEntrega(app.id, tipoDoEvento(req.body));
 
   if (req.body?.object !== 'page') return res.sendStatus(200);
 
