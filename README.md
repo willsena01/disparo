@@ -53,7 +53,7 @@ Registrar o handler em `src/engine/nodes/index.js`.
 ## Webhook do Facebook
 
 Dois processos, dois papéis: `npm run server` expõe o webhook (e a API do
-dashboard), `npm start` roda o poller que retoma as execuções em `waiting`.
+dashboard), `npm run poller` roda o poller que retoma as execuções em `waiting`.
 
 - `GET /api/webhook` — verificação da Callback URL. Responde `hub.challenge`
   se `hub.verify_token` bater com o `webhook_verify_token` de algum app
@@ -86,7 +86,7 @@ npm install
 npm run migrate
 npm run seed
 npm run server   # API + webhook
-npm start        # poller de execuções (outro terminal)
+npm run poller        # poller de execuções (outro terminal)
 ```
 
 `.env` não é carregado automaticamente (não há `dotenv`) — as variáveis
@@ -476,7 +476,7 @@ Railway, Render ou VPS. O fallback do SPA fica depois de todas as rotas, então
 Em servidor comum, suba também os dois processos de fundo:
 
 ```bash
-npm start                 # poller: retoma fluxos em Espera
+npm run poller                 # poller: retoma fluxos em Espera
 npm run broadcast-worker  # fila de campanhas
 ```
 
@@ -487,7 +487,7 @@ Em serverless eles não existem — ver a seção seguinte.
 A Vercel é serverless: **não existe processo contínuo**. Duas peças dependiam
 disso e foram adaptadas.
 
-**Fluxos e campanhas** viviam de dois laços (`npm start` e
+**Fluxos e campanhas** viviam de dois laços (`npm run poller` e
 `npm run broadcast-worker`). Em serverless quem aciona é um cron externo:
 
 ```

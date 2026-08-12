@@ -2,13 +2,13 @@
   "name": "disparo",
   "version": "0.1.0",
   "type": "module",
-  "description": "Motor de execução de fluxos de disparo/automação (flow_executions)",
-  "main": "src/engine/executor.js",
+  "private": true,
+  "description": "Automação de comentários do Facebook para o Messenger",
   "scripts": {
-    "start": "node src/engine/executor.js",
-    "server": "node src/server.js",
-    "broadcast-worker": "node src/broadcastWorker.js",
     "build": "npm install --prefix web && npm run build --prefix web",
+    "server": "node src/server.js",
+    "poller": "node src/engine/executor.js",
+    "broadcast-worker": "node src/broadcastWorker.js",
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js"
   },

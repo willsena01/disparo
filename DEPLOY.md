@@ -138,5 +138,5 @@ externo), as mídias ficam no disco (sem Blob) e o comando é um só:
 npm run build && npm run migrate && npm run server
 ```
 
-mais `npm start` e `npm run broadcast-worker` como processos separados. Para
+mais `npm run poller` e `npm run broadcast-worker` como processos separados. Para
 este app, sai mais simples e provavelmente mais barato que o Pro da Vercel.
