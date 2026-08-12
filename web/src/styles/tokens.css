@@ -1,0 +1,114 @@
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f0f1f4;
+  --border: #e5e7eb;
+  --ink: #16181d;
+  --muted: #6b7280;
+  --muted-2: #9aa1ac;
+
+  --accent: #4f46e5;
+  --accent-soft: #eef0fd;
+  --accent-ink: #3730a3;
+
+  --success: #16a34a;
+  --success-soft: #e9f9ee;
+  --warning: #b45309;
+  --warning-soft: #fef3e2;
+  --danger: #dc2626;
+  --danger-soft: #fdecec;
+
+  --chart-line: #4f46e5;
+  --chart-line-fill: rgba(79, 70, 229, 0.12);
+  --chart-bar: #8891a5;
+
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --radius: 10px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --surface: #171a20;
+    --surface-2: #1d2129;
+    --border: #2a2e37;
+    --ink: #e9eaee;
+    --muted: #9aa1ac;
+    --muted-2: #6b7280;
+
+    --accent: #8b85f0;
+    --accent-soft: #232145;
+    --accent-ink: #c7c3fb;
+
+    --success: #4ade80;
+    --success-soft: #113420;
+    --warning: #e3a93b;
+    --warning-soft: #3a2a10;
+    --danger: #f0715c;
+    --danger-soft: #3a1815;
+
+    --chart-line: #8b85f0;
+    --chart-line-fill: rgba(139, 133, 240, 0.16);
+    --chart-bar: #4b5160;
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0f1115;
+  --surface: #171a20;
+  --surface-2: #1d2129;
+  --border: #2a2e37;
+  --ink: #e9eaee;
+  --muted: #9aa1ac;
+  --muted-2: #6b7280;
+
+  --accent: #8b85f0;
+  --accent-soft: #232145;
+  --accent-ink: #c7c3fb;
+
+  --success: #4ade80;
+  --success-soft: #113420;
+  --warning: #e3a93b;
+  --warning-soft: #3a2a10;
+  --danger: #f0715c;
+  --danger-soft: #3a1815;
+
+  --chart-line: #8b85f0;
+  --chart-line-fill: rgba(139, 133, 240, 0.16);
+  --chart-bar: #4b5160;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f0f1f4;
+  --border: #e5e7eb;
+  --ink: #16181d;
+  --muted: #6b7280;
+  --muted-2: #9aa1ac;
+
+  --accent: #4f46e5;
+  --accent-soft: #eef0fd;
+  --accent-ink: #3730a3;
+
+  --success: #16a34a;
+  --success-soft: #e9f9ee;
+  --warning: #b45309;
+  --warning-soft: #fef3e2;
+  --danger: #dc2626;
+  --danger-soft: #fdecec;
+
+  --chart-line: #4f46e5;
+  --chart-line-fill: rgba(79, 70, 229, 0.12);
+  --chart-bar: #8891a5;
+
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+  color-scheme: light;
+}

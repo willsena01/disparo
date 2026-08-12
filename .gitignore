@@ -1,0 +1,21 @@
+node_modules/
+
+# Segredos e configuração de máquina — nunca versionar.
+# DATABASE_URL, CRON_SECRET e tokens vivem aqui.
+.env
+.env.local
+.env.*.local
+
+# Arquivos enviados pelo operador (mídia dos blocos de mensagem).
+uploads/
+
+# Build do painel: gerado por `npm run build`.
+web/dist/
+
+# Configuração local do editor e da Vercel.
+.claude/
+.vercel/
+
+# Sistema operacional
+Thumbs.db
+.DS_Store

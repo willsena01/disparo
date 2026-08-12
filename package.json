@@ -1,0 +1,21 @@
+{
+  "name": "disparo",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Motor de execução de fluxos de disparo/automação (flow_executions)",
+  "main": "src/engine/executor.js",
+  "scripts": {
+    "start": "node src/engine/executor.js",
+    "server": "node src/server.js",
+    "broadcast-worker": "node src/broadcastWorker.js",
+    "build": "npm install --prefix web && npm run build --prefix web",
+    "migrate": "node scripts/migrate.js",
+    "seed": "node scripts/seed.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.0",
+    "express": "^4.19.2",
+    "multer": "^2.2.0",
+    "pg": "^8.11.5"
+  }
+}
