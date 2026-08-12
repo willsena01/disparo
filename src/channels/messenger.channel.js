@@ -4,6 +4,7 @@ import { incrementMessagesUsed, markAppBlocked } from '../facebookApps.js';
 import { leads } from '../leads.js';
 import { rastrearBotoes } from '../tracking.js';
 import { montarMensagens } from '../messageContent.js';
+import { contextoDoLead, interpolarConteudo } from '../variables.js';
 
 const GRAPH_VERSION = process.env.FB_GRAPH_VERSION ?? 'v21.0';
 const GRAPH_URL = `https://graph.facebook.com/${GRAPH_VERSION}`;
@@ -126,7 +127,8 @@ export const messengerChannel = {
   // foi disparado por um comentário, e o id da execução pra rastrear o envio.
   async sendRich(lead, config, ctx = {}) {
     const conexoes = await listSendableConnections(lead.page_id);
-    const workspaceId = (await getPageByPageId(lead.page_id))?.workspace_id ?? null;
+    const pagina = await getPageByPageId(lead.page_id);
+    const workspaceId = pagina?.workspace_id ?? null;
 
     if (!conexoes.length) {
       const reason =
@@ -145,16 +147,29 @@ export const messengerChannel = {
       throw err;
     }
 
+    // Personalização. Aqui é o único ponto por onde TUDO passa — fluxo,
+    // broadcast e resposta de regra de comentário chegam neste método —, então
+    // é onde o molde vira mensagem daquela pessoa. Feito antes do rastreio de
+    // botões para que o título já saia interpolado no link gerado.
+    const conteudo = interpolarConteudo(
+      config,
+      contextoDoLead(lead, {
+        pageName: pagina?.name,
+        keyword: ctx.matched_keyword,
+        comment: ctx.comment_text,
+      })
+    );
+
     // Os botões saem apontando pro redirecionador da ferramenta: é a única
     // forma de saber que alguém clicou (a Meta não informa clique em link).
-    const botoesRastreados = await rastrearBotoes(config.buttons, {
+    const botoesRastreados = await rastrearBotoes(conteudo.buttons, {
       workspaceId,
       leadId: lead.id,
       broadcastId: ctx.broadcastId,
       executionId: ctx.executionId,
     });
 
-    const mensagens = montarMensagens({ ...config, buttons: botoesRastreados });
+    const mensagens = montarMensagens({ ...conteudo, buttons: botoesRastreados });
     if (!mensagens.length) return;
 
     let ultimoErro;

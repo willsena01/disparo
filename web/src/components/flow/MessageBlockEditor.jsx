@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { LIMITE_TEXTO, MAX_BOTOES, MAX_RESPOSTAS_RAPIDAS, normalizarPartes } from './messageContent.js';
+import InserirVariavel, { inserirNoCampo } from '../InserirVariavel.jsx';
 
 // Editor do bloco de mensagem: uma lista de partes (texto, imagem, áudio,
 // vídeo) que saem em sequência, mais os elementos interativos.
@@ -34,6 +35,14 @@ export default function MessageBlockEditor({ titulo, config, onChange, onDuplica
     onChange((c) => ({ ...c, buttons: [...(c.buttons ?? []), novo] }));
   const adicionarRapida = () =>
     onChange((c) => ({ ...c, quickReplies: [...(c.quickReplies ?? []), { title: '' }] }));
+  // Um textarea por parte de texto — a inserção precisa saber em qual campo
+  // está o cursor.
+  const camposDeTexto = useRef({});
+  function inserirVariavel(i, token) {
+    const el = camposDeTexto.current[i];
+    alterar(i, { text: inserirNoCampo(el, partes[i]?.text, token, LIMITE_TEXTO) });
+  }
+
   function mover(i, delta) {
     setPartes((atuais) => {
       const alvo = i + delta;
@@ -77,6 +86,7 @@ export default function MessageBlockEditor({ titulo, config, onChange, onDuplica
             {parte.type === 'texto' ? (
               <>
                 <textarea
+                  ref={(el) => { camposDeTexto.current[i] = el; }}
                   className="textarea parte-texto"
                   value={parte.text ?? ''}
                   maxLength={LIMITE_TEXTO}
@@ -88,6 +98,7 @@ export default function MessageBlockEditor({ titulo, config, onChange, onDuplica
                 <span className="parte-contador tabular">
                   {(parte.text ?? '').length}/{LIMITE_TEXTO.toLocaleString('pt-BR')}
                 </span>
+                <InserirVariavel onInserir={(token) => inserirVariavel(i, token)} />
               </>
             ) : (
               <CampoDeMidia

@@ -27,6 +27,12 @@ flowsRouter.post('/', route(async (ws, req, res) => {
   res.status(201).json(await flows.create(ws, req.body ?? {}));
 }));
 
+// Catálogo de variáveis de personalização. Vem antes de /:id de propósito:
+// registrada depois, "variaveis" seria lida como um id de fluxo.
+flowsRouter.get('/variaveis', (_req, res) => {
+  res.json({ variaveis: flows.VARIAVEIS });
+});
+
 flowsRouter.get('/:id', route(async (ws, req, res) => {
   const f = await flows.get(ws, req.params.id);
   if (!f) return res.status(404).json({ error: 'Fluxo não encontrado' });

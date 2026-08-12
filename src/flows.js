@@ -2,6 +2,17 @@ import { pool } from './db/pool.js';
 import { ValidationError } from './facebookApps.js';
 import { getHandler } from './engine/nodes/index.js';
 import { normalizarConteudo } from './messageContent.js';
+import {
+  variaveisDesconhecidas,
+  CHAVES,
+  contextoDoLead,
+  interpolar,
+  interpolarConteudo,
+} from './variables.js';
+
+// Reexportado para a rota do editor montar o menu de inserir variável a partir
+// da mesma lista que a validação usa — duas listas divergiriam.
+export { VARIAVEIS } from './variables.js';
 
 // Fluxos: casamento de gatilho, CRUD do editor e simulação de teste.
 
@@ -129,6 +140,22 @@ export function validarNodes(nodes, firstNodeId) {
     const c = n.config ?? {};
     if (n.type === 'message' && !normalizarConteudo(c).partes.length) {
       throw new ValidationError('Bloco de mensagem sem conteúdo');
+    }
+    if (n.type === 'message') {
+      // Variável escrita errada é barata de corrigir aqui e cara depois: no
+      // envio ela sai literal — "Olá {{fist_name}}" chega assim no lead.
+      const textos = [
+        ...(normalizarConteudo(c).partes.filter((p) => p.type === 'texto').map((p) => p.text)),
+        ...(c.buttons ?? []).map((b) => b?.title),
+        ...(c.quickReplies ?? []).map((q) => q?.title),
+      ];
+      const desconhecidas = [...new Set(textos.flatMap((t) => variaveisDesconhecidas(t)))];
+      if (desconhecidas.length) {
+        throw new ValidationError(
+          `Variável desconhecida: ${desconhecidas.map((v) => `{{${v}}}`).join(', ')}. ` +
+          `Disponíveis: ${CHAVES.map((k) => `{{${k}}}`).join(', ')}`
+        );
+      }
     }
     if (n.type === 'wait' && !(Number(c.duration_seconds) > 0)) {
       throw new ValidationError('Bloco de espera precisa de uma duração maior que zero');
@@ -291,7 +318,8 @@ export async function removeTrigger(workspaceId, flowId, triggerId) {
 // produção.
 export async function simular(workspaceId, flowId, opcoes) {
   // Aceita string (leadId) por compatibilidade com chamadas anteriores.
-  const { pageId, leadId } = typeof opcoes === 'string' ? { leadId: opcoes } : (opcoes ?? {});
+  const opcoesDeTeste = typeof opcoes === 'string' ? { leadId: opcoes } : (opcoes ?? {});
+  const { pageId, leadId } = opcoesDeTeste;
 
   const flow = await get(workspaceId, flowId);
   if (!flow) throw new ValidationError('Fluxo não encontrado');
@@ -334,16 +362,26 @@ export async function simular(workspaceId, flowId, opcoes) {
     tags = new Set();
   }
 
+  // O mesmo contexto que o canal monta no envio real. Sem isso o teste
+  // mostraria "Olá {{first_name}}" e o lead receberia "Olá Ana" — uma prévia
+  // que não prevê nada.
+  const contexto = contextoDoLead(lead, {
+    pageName: pagina?.name,
+    keyword: opcoesDeTeste.keyword,
+    comment: opcoesDeTeste.comment,
+  });
+
   const passos = [];
   const messengerFalso = {
     async send(_lead, text, buttons) {
-      passos.push({ tipo: 'mensagem', text, buttons: buttons ?? null });
+      passos.push({ tipo: 'mensagem', text: interpolar(text, contexto), buttons: buttons ?? null });
     },
     // Cada parte do bloco vira um passo próprio: é assim que a pessoa vai
     // receber (mensagens separadas), e juntar tudo num balão só faria o teste
     // mostrar uma conversa diferente da real.
     async sendRich(_lead, config) {
-      const { partes, botoes, respostasRapidas } = normalizarConteudo(config);
+      const { partes, botoes, respostasRapidas } =
+        normalizarConteudo(interpolarConteudo(config, contexto));
       partes.forEach((parte, i) => {
         const ultima = i === partes.length - 1;
         passos.push({

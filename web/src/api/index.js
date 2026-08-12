@@ -64,6 +64,8 @@ export const flowsApi = {
   removeTrigger: (id, triggerId) => del(`/api/flows/${id}/triggers/${triggerId}`),
   // Aceita { pageId } (teste pela página, com lead fictício) ou { leadId }.
   test: (id, alvo) => post(`/api/flows/${id}/test`, alvo),
+  // Catálogo de {{variáveis}} de personalização.
+  variaveis: () => get('/api/flows/variaveis'),
 };
 
 // Comentários: regras de auto-resposta + histórico do que foi capturado

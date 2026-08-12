@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Layout from '../components/Layout.jsx';
+import InserirVariavel, { inserirNoCampo } from '../components/InserirVariavel.jsx';
 import Modal from '../components/Modal.jsx';
 import { CardSkeleton, CardError } from '../components/CardState.jsx';
 import { useAsync } from '../hooks/useAsync.js';
@@ -232,6 +233,8 @@ function Historico({ historico }) {
 
 function RegraModal({ aberto, regra, paginas, fluxos, semRespostaPublica, onFechar, onSalvo }) {
   const [form, setForm] = useState({});
+  const campoDm = useRef(null);
+  const campoPublico = useRef(null);
   const [erro, setErro] = useState(null);
   const [salvando, setSalvando] = useState(false);
   const [carregado, setCarregado] = useState(null);
@@ -313,12 +316,14 @@ function RegraModal({ aberto, regra, paginas, fluxos, semRespostaPublica, onFech
 
         <div className="field">
           <label htmlFor="r-dm">Resposta privada (DM) — captura o lead</label>
-          <textarea id="r-dm" className="textarea" value={form.privateReplyText ?? ''} onChange={(e) => set('privateReplyText', e.target.value)} placeholder="Olá! Vi seu comentário. Aqui está o link…" />
+          <textarea ref={campoDm} id="r-dm" className="textarea" value={form.privateReplyText ?? ''} onChange={(e) => set('privateReplyText', e.target.value)} placeholder="Olá {{first_name|amigo}}! Vi seu comentário. Aqui está o link…" />
+          <InserirVariavel onInserir={(t) => set('privateReplyText', inserirNoCampo(campoDm.current, form.privateReplyText, t))} />
         </div>
 
         <div className="field">
           <label htmlFor="r-pub">Resposta pública <span className="opc">(opcional)</span></label>
-          <textarea id="r-pub" className="textarea" value={form.publicReplyText ?? ''} onChange={(e) => set('publicReplyText', e.target.value)} placeholder="Te chamamos no privado! 📩" />
+          <textarea ref={campoPublico} id="r-pub" className="textarea" value={form.publicReplyText ?? ''} onChange={(e) => set('publicReplyText', e.target.value)} placeholder="Te chamamos no privado! 📩" />
+          <InserirVariavel onInserir={(t) => set('publicReplyText', inserirNoCampo(campoPublico.current, form.publicReplyText, t))} />
           {semRespostaPublica && (
             <p className="aviso-permissao">
               O app não tem a permissão <code>pages_manage_engagement</code>, então esta resposta

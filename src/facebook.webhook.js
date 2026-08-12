@@ -5,6 +5,7 @@ import { getPageByPageId } from './pages.js';
 import { claimComment, attachMatch } from './comments.js';
 import { matchRule, responderPublicamente } from './commentRules.js';
 import { messenger } from './messenger.js';
+import { interpolar, contextoDoLead } from './variables.js';
 
 // Extrai os comentários novos de um payload de webhook do Facebook.
 //
@@ -78,7 +79,17 @@ export async function onCommentReceived(comment) {
   // Vem primeiro e num try isolado: ela é visível pra quem passa pelo post, e
   // uma falha na DM não pode impedi-la (nem o contrário).
   if (regra.public_reply_text && comment.comment_id) {
-    const r = await responderPublicamente(comment.page_id, comment.comment_id, regra.public_reply_text);
+    // A resposta pública não passa pelo canal, então interpola aqui. O nome vem
+    // do lead que acabou de ser criado/reencontrado a partir do comentário.
+    const texto = interpolar(
+      regra.public_reply_text,
+      contextoDoLead(lead, {
+        pageName: (await getPageByPageId(comment.page_id))?.name,
+        keyword: regra.keyword || null,
+        comment: comment.text,
+      })
+    );
+    const r = await responderPublicamente(comment.page_id, comment.comment_id, texto);
     respondeuPublico = r.ok;
     if (!r.ok) erros.push(`resposta pública: ${r.erro}`);
   }
@@ -87,10 +98,13 @@ export async function onCommentReceived(comment) {
   //
   // Com fluxo configurado o texto privado é ignorado de propósito — mandar os
   // dois faria a pessoa receber duas mensagens seguidas dizendo a mesma coisa.
+  // comment_text entra aqui porque o contexto da execução é o que alimenta
+  // {{keyword}} e {{comment}} lá no envio — sem ele a variável sairia vazia.
   const ctxDoComentario = {
     comment_id: comment.comment_id,
     post_id: comment.post_id,
     matched_keyword: regra.keyword || null,
+    comment_text: comment.text ?? null,
     rule_id: regra.id,
   };
 
@@ -110,6 +124,7 @@ export async function onCommentReceived(comment) {
     try {
       await messenger.send(lead, regra.private_reply_text, null, {
         commentId: comment.comment_id,
+        ...ctxDoComentario,
       });
       respondeuPrivado = true;
     } catch (err) {
