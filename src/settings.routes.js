@@ -10,6 +10,7 @@ import {
   CAMPOS_DO_WEBHOOK,
 } from './facebookOAuth.js';
 import { dadosDaEmpresa, identificacaoCompleta } from './legal.js';
+import { modoDeArmazenamento, problemaDeArmazenamento } from './storage.js';
 
 // Tudo que precisa ser colado no painel do Meta for Developers, e o callback
 // de exclusão de dados que a Meta exige pra aprovar o app.
@@ -81,6 +82,12 @@ settingsRouter.get('/urls', async (_req, res) => {
     // redução foi longe demais.
     permissoesFaltando: SCOPES_ESSENCIAIS.filter((s) => !SCOPES.includes(s)),
     camposDoWebhook: CAMPOS_DO_WEBHOOK,
+    // Onde as mídias dos blocos são guardadas. Aparece aqui para o problema ser
+    // descoberto ao configurar, e não no meio da montagem de um fluxo.
+    armazenamento: {
+      modo: modoDeArmazenamento,
+      problema: problemaDeArmazenamento(),
+    },
     empresa: {
       ...dadosDaEmpresa(),
       completa: identificacaoCompleta(),

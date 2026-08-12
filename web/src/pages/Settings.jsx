@@ -269,7 +269,29 @@ function UrlsCard({ urls }) {
                 {urls.data.permissoes.map((p) => <code key={p}>{p}</code>)}
               </div>
             </div>
+            {urls.data.armazenamento && (
+              <div>
+                {/* Confirma sem sair da tela que o Vercel Blob foi reconhecido:
+                    "blob" só aparece quando o token existe de verdade. */}
+                <span className="lista-titulo">Onde as mídias são guardadas</span>
+                <div className="lista-itens">
+                  <code>{urls.data.armazenamento.modo}</code>
+                  <span className="lista-nota">
+                    {urls.data.armazenamento.modo === 'blob'
+                      ? 'Vercel Blob — token reconhecido'
+                      : 'disco do servidor'}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
+
+          {urls.data.armazenamento?.problema && (
+            <p className="nota nota-alerta">
+              <strong>Envio de arquivo indisponível.</strong>{' '}
+              {urls.data.armazenamento.problema}
+            </p>
+          )}
 
           {urls.data.permissoesFaltando?.length > 0 && (
             <p className="nota nota-alerta">
@@ -306,6 +328,7 @@ function UrlsCard({ urls }) {
           font-size: 11.5px; background: var(--surface-2); color: var(--muted);
           padding: 3px 8px; border-radius: 6px;
         }
+        .lista-nota { font-size: 11.5px; color: var(--muted-2); align-self: center; }
       `}</style>
     </div>
   );

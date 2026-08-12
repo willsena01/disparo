@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { PASTA_UPLOADS, guardar } from './storage.js';
 
+
 // Upload de mídia dos blocos de mensagem.
 //
 // A Meta não recebe o arquivo: ela BUSCA o arquivo numa URL pública. Então o
@@ -60,6 +61,11 @@ uploadsRouter.post('/', (req, res) => {
       });
     } catch (erroAoGuardar) {
       console.error('[uploads]', erroAoGuardar);
+      // Falha de configuração é 503 com o motivo: tentar de novo não resolve, e
+      // esconder a causa atrás de "não foi possível" deixa o operador sem saída.
+      if (erroAoGuardar.deConfiguracao) {
+        return res.status(503).json({ error: erroAoGuardar.message });
+      }
       res.status(500).json({ error: 'Não foi possível guardar o arquivo' });
     }
   });
