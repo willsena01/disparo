@@ -18,17 +18,39 @@ import { ValidationError } from './facebookApps.js';
 const GRAPH_VERSION = process.env.FB_GRAPH_VERSION ?? 'v21.0';
 const GRAPH_URL = `https://graph.facebook.com/${GRAPH_VERSION}`;
 
-// Permissões mínimas: enviar mensagem, assinar o webhook de comentários, ler
-// engajamento do post e listar as páginas do usuário.
-export const SCOPES = [
+// Permissões pedidas no OAuth.
+//
+// O conjunto disponível depende dos casos de uso habilitados no app do Meta:
+// pedir uma que o app não tem faz o Facebook recusar o login inteiro com
+// "Invalid Scopes" — não ignora a permissão, derruba a conexão.
+//
+// Por isso FB_SCOPES permite ajustar a lista sem mexer no código, e conectar
+// com o que já está liberado enquanto as demais não são aprovadas.
+//
+//   pages_show_list        listar suas páginas no login          (essencial)
+//   pages_messaging        enviar a DM                            (essencial)
+//   pages_manage_metadata  inscrever a página no webhook          (essencial)
+//   pages_read_engagement  ler nome/foto e conteúdo da página     (recomendada)
+//
+// pages_manage_engagement fica DE FORA do padrão de propósito. Ela só serve
+// para a resposta pública no comentário — nada do disparo depende dela — e vem
+// de outro caso de uso ("Gerenciar tudo na sua Página"), com App Review à
+// parte. Pedi-la por padrão significa que todo app recém-criado toma
+// "Invalid Scopes" e não conecta nenhuma página. Quem quiser a resposta
+// pública habilita o caso de uso e acrescenta a permissão em FB_SCOPES.
+export const SCOPES = (process.env.FB_SCOPES ?? [
+  'pages_show_list',
   'pages_messaging',
   'pages_manage_metadata',
   'pages_read_engagement',
-  'pages_show_list',
-  // Necessária pra responder publicamente no comentário. Sem ela a DM funciona
-  // e a resposta pública falha — com erro de permissão, não de configuração.
-  'pages_manage_engagement',
-];
+].join(','))
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+// As três sem as quais nada funciona — usado para avisar na tela quando a
+// lista configurada estiver incompleta.
+export const SCOPES_ESSENCIAIS = ['pages_show_list', 'pages_messaging', 'pages_manage_metadata'];
 
 export function baseUrl() {
   return (process.env.APP_BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');

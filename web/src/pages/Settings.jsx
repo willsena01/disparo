@@ -107,6 +107,9 @@ export default function Settings() {
         .secao-sub { font-size: 12px; color: var(--muted-2); }
         .nota { font-size: 12px; color: var(--muted); line-height: 1.55; }
         .nota strong { color: var(--ink); font-weight: 600; }
+        .nota-alerta { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412;
+                       border-radius: 8px; padding: 10px 12px; }
+        .nota-alerta strong { color: #7c2d12; }
       `}</style>
     </Layout>
   );
@@ -267,6 +270,24 @@ function UrlsCard({ urls }) {
               </div>
             </div>
           </div>
+
+          {urls.data.permissoesFaltando?.length > 0 && (
+            <p className="nota nota-alerta">
+              <strong>Faltam permissões essenciais em FB_SCOPES:</strong>{' '}
+              {urls.data.permissoesFaltando.join(', ')}. Sem elas a conexão até acontece, mas
+              listar páginas, assinar o webhook ou enviar a mensagem vai falhar.
+            </p>
+          )}
+
+          <p className="nota">
+            Se o login do Facebook responder <strong>“Invalid Scopes”</strong>, é porque o app não
+            tem alguma dessas permissões habilitada. Ative-a no painel da Meta (Casos de uso →
+            Personalizar → Permissões) ou tire-a da lista pela variável <code>FB_SCOPES</code> —
+            o mínimo que funciona é{' '}
+            <code>pages_show_list,pages_messaging,pages_manage_metadata</code>. A mesma variável
+            serve para <em>acrescentar</em> <code>pages_manage_engagement</code>, que libera a
+            resposta pública no comentário e exige o caso de uso “Gerenciar tudo na sua Página”.
+          </p>
 
           <p className="nota">
             <strong>Política de Privacidade e Termos já estão publicados</strong> nesses endereços e

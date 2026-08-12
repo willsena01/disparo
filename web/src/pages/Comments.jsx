@@ -3,7 +3,7 @@ import Layout from '../components/Layout.jsx';
 import Modal from '../components/Modal.jsx';
 import { CardSkeleton, CardError } from '../components/CardState.jsx';
 import { useAsync } from '../hooks/useAsync.js';
-import { commentsApi, pagesApi, flowsApi } from '../api/index.js';
+import { commentsApi, pagesApi, flowsApi, settingsApi } from '../api/index.js';
 
 export default function Comments() {
   const [versao, setVersao] = useState(0);
@@ -15,6 +15,13 @@ export default function Comments() {
   const paginas = useAsync(() => pagesApi.list(), []);
   const fluxos = useAsync(() => flowsApi.list(), []);
   const historico = useAsync(() => commentsApi.list({ perPage: 25 }), [versao]);
+  const config = useAsync(() => settingsApi.urls(), []);
+
+  // Responder publicamente no comentário exige pages_manage_engagement. Se ela
+  // não está sendo pedida no OAuth, o campo salva normalmente e falha calado na
+  // hora do disparo — melhor avisar antes de a pessoa escrever o texto.
+  const semRespostaPublica =
+    config.data != null && !config.data.permissoes.includes('pages_manage_engagement');
 
   const opcoesPagina = [...new Map((paginas.data ?? []).map((p) => [p.pageId, p])).values()];
 
@@ -113,6 +120,7 @@ export default function Comments() {
         regra={editando}
         paginas={opcoesPagina}
         fluxos={fluxos.data ?? []}
+        semRespostaPublica={semRespostaPublica}
         onFechar={() => setEditando(null)}
         onSalvo={() => { setEditando(null); recarregar(); }}
       />
@@ -222,7 +230,7 @@ function Historico({ historico }) {
   );
 }
 
-function RegraModal({ aberto, regra, paginas, fluxos, onFechar, onSalvo }) {
+function RegraModal({ aberto, regra, paginas, fluxos, semRespostaPublica, onFechar, onSalvo }) {
   const [form, setForm] = useState({});
   const [erro, setErro] = useState(null);
   const [salvando, setSalvando] = useState(false);
@@ -311,6 +319,13 @@ function RegraModal({ aberto, regra, paginas, fluxos, onFechar, onSalvo }) {
         <div className="field">
           <label htmlFor="r-pub">Resposta pública <span className="opc">(opcional)</span></label>
           <textarea id="r-pub" className="textarea" value={form.publicReplyText ?? ''} onChange={(e) => set('publicReplyText', e.target.value)} placeholder="Te chamamos no privado! 📩" />
+          {semRespostaPublica && (
+            <p className="aviso-permissao">
+              O app não tem a permissão <code>pages_manage_engagement</code>, então esta resposta
+              não vai ser publicada. A DM continua funcionando normalmente. Para liberar, adicione
+              o caso de uso <strong>“Gerenciar tudo na sua Página”</strong> no painel da Meta.
+            </p>
+          )}
         </div>
 
         <div className="field">
@@ -360,6 +375,13 @@ function RegraModal({ aberto, regra, paginas, fluxos, onFechar, onSalvo }) {
           .linha-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
           .opc { color: var(--muted-2); font-weight: 400; }
           .field-hint strong { color: var(--muted); font-weight: 600; }
+          .aviso-permissao {
+            margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: #9a3412;
+            background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 8px 10px;
+          }
+          .aviso-permissao code {
+            background: #ffedd5; padding: 1px 5px; border-radius: 4px; font-size: 11.5px;
+          }
         `}</style>
       </form>
     </Modal>

@@ -2,7 +2,13 @@ import crypto from 'node:crypto';
 import express from 'express';
 import { pool } from './db/pool.js';
 import { getDefaultWorkspaceId } from './workspace.js';
-import { baseUrl, redirectUri, SCOPES, CAMPOS_DO_WEBHOOK } from './facebookOAuth.js';
+import {
+  baseUrl,
+  redirectUri,
+  SCOPES,
+  SCOPES_ESSENCIAIS,
+  CAMPOS_DO_WEBHOOK,
+} from './facebookOAuth.js';
 import { dadosDaEmpresa, identificacaoCompleta } from './legal.js';
 
 // Tudo que precisa ser colado no painel do Meta for Developers, e o callback
@@ -68,6 +74,12 @@ settingsRouter.get('/urls', async (_req, res) => {
       },
     ],
     permissoes: SCOPES,
+    // Pedir uma permissão que o app não tem faz o Facebook recusar o login
+    // inteiro ("Invalid Scopes"). Quando isso acontece o caminho é habilitar a
+    // permissão no caso de uso do app — ou, para destravar já, reduzir a lista
+    // em FB_SCOPES. Aqui a tela mostra o que está sendo pedido e avisa se a
+    // redução foi longe demais.
+    permissoesFaltando: SCOPES_ESSENCIAIS.filter((s) => !SCOPES.includes(s)),
     camposDoWebhook: CAMPOS_DO_WEBHOOK,
     empresa: {
       ...dadosDaEmpresa(),
@@ -151,6 +163,33 @@ settingsRouter.post('/data-deletion', express.urlencoded({ extended: false }), a
     console.error('[data-deletion]', err);
     res.status(500).json({ error: 'Não foi possível processar a exclusão agora' });
   }
+});
+
+// Instruções legíveis por pessoa, no MESMO endereço do callback.
+//
+// A Meta oferece dois campos: "Callback de exclusão de dados" (POST com
+// signed_request, automático) e "URL de instruções" (uma página). Servindo os
+// dois no mesmo endereço, qualquer uma das opções do painel funciona — e quem
+// abrir o link no navegador lê o que fazer, em vez de tomar 404.
+settingsRouter.get('/data-deletion', (_req, res) => {
+  const base = baseUrl();
+  res.type('html').send(pagina(
+    'Exclusão dos seus dados',
+    `Para apagar os dados associados ao seu perfil nesta ferramenta, escolha um dos caminhos:
+     <br><br>
+     <strong>1. Pelo Facebook (automático)</strong><br>
+     Acesse <em>Configurações e privacidade → Configurações → Aplicativos e sites</em>,
+     localize este aplicativo e remova-o. O Facebook nos avisa automaticamente e os dados são
+     apagados na hora, com um código de confirmação que você pode consultar.
+     <br><br>
+     <strong>2. Por e-mail</strong><br>
+     Escreva para <a href="mailto:${dadosDaEmpresa().email}">${dadosDaEmpresa().email}</a>
+     pedindo a exclusão. Respondemos em até 15 dias.
+     <br><br>
+     São apagados: seu identificador da página (PSID), nome, foto, mensagens trocadas e
+     registros de interação. Os comentários públicos que você deixou na página são
+     anonimizados. Detalhes na <a href="${base}/privacidade">Política de Privacidade</a>.`
+  ));
 });
 
 // Página de acompanhamento que a pessoa abre com o código.
