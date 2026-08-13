@@ -49,8 +49,10 @@ do app.)
 
 ## Parte 2 — Gravar o vídeo (screencast)
 
-É o item que mais reprova. A Meta precisa **ver** o fluxo funcionando, do
-comentário até a mensagem chegando.
+**Obrigatório.** É o item que mais reprova, e a causa nº 1 de reprovação é o
+vídeo começar com o app já conectado: a Meta precisa ver a **tela de
+consentimento do Facebook**, onde as permissões aparecem e são autorizadas.
+Não basta mostrar a mensagem chegando.
 
 ### 2.1 Preparar um testador
 
@@ -62,26 +64,60 @@ para quem não tem papel no app.
 3. Nesse perfil: [developers.facebook.com/settings](https://developers.facebook.com/settings)
    → aba **Solicitações** → **Confirmar**
 
-### 2.2 O que gravar
+### 2.2 Antes de gravar
 
-Grave a tela em uma tomada só, sem cortes, com o mouse visível. Duração de
-1 a 3 minutos. Sem áudio é aceito; legenda ajuda.
+Para conseguir filmar a tela de consentimento, **desconecte as páginas** no
+Disparo (Páginas → remover). Você vai reconectá-las durante a gravação — é
+esse momento que o revisor precisa ver.
 
-| # | O que mostrar | Por quê |
+### 2.3 O que gravar, na ordem
+
+Uma tomada só, sem cortes, mouse visível, 1080p. De 2 a 4 minutos.
+
+| # | O que mostrar | Prova qual permissão |
 |---|---|---|
-| 1 | O post na página **Prosperidade Diária** | prova que a página é sua |
-| 2 | O testador escrevendo e publicando o comentário | mostra o gatilho |
-| 3 | O Messenger daquele perfil recebendo a mensagem | prova o uso da permissão |
-| 4 | A pessoa clicando no botão da mensagem | mostra o fluxo completo |
-| 5 | O painel do Disparo → **Comentários**, com o registro | mostra o produto |
-| 6 | O painel → **Leads**, com o lead criado | fecha o ciclo |
+| 1 | Login no painel do Disparo (`disparo-gx97.vercel.app`) | contexto do produto |
+| 2 | Páginas → **Conectar com Facebook** | início do fluxo |
+| 3 | **A tela de consentimento do Facebook, com a lista de permissões visível** | ⚠️ o item mais importante |
+| 4 | A seleção das páginas e o "Continuar" | `pages_show_list` |
+| 5 | As páginas aparecendo conectadas no painel | `pages_manage_metadata` |
+| 6 | O fluxo montado no editor | contexto do produto |
+| 7 | Um post da página **Prosperidade Diária** | a página é sua |
+| 8 | O testador escrevendo e publicando o comentário | o gatilho |
+| 9 | Painel → **Comentários**, com o comentário capturado | `pages_read_engagement` |
+| 10 | O Messenger daquele perfil recebendo a mensagem | `pages_messaging` |
+| 11 | A pessoa clicando no botão da mensagem | o fluxo completo |
+| 12 | Painel → **Leads**, com o lead criado | fecha o ciclo |
 
-**Não grave:** telas de código, o banco de dados, ou o painel de
-desenvolvedores da Meta. O revisor quer ver o produto do ponto de vista do
-usuário.
+Passe devagar nos itens 3, 9 e 10 — são os que provam cada permissão pedida.
+Uma permissão que não apareça em uso no vídeo põe a submissão inteira em risco.
 
-Ferramentas: gravador de tela do Windows (`Win + Alt + R`), OBS, ou Loom.
-Formato MP4, até 500 MB.
+### 2.4 O idioma
+
+O painel do Disparo e o Facebook estarão em português. O revisor é
+internacional: **adicione legendas em inglês** ou uma faixa de texto sobre o
+vídeo dizendo o que está acontecendo em cada etapa. Interface em outro idioma
+sem legenda é motivo declarado de reprovação.
+
+Sugestão de legendas, na ordem das cenas:
+
+1. `Logging into our tool`
+2. `Connecting our Facebook Page`
+3. `Facebook permission consent screen`
+4. `Selecting the Pages we own`
+5. `Pages connected`
+6. `The automated flow we configured`
+7. `A post on our Page`
+8. `A user comments on the post`
+9. `Our tool reads the comment (pages_read_engagement)`
+10. `The user receives a private reply on Messenger (pages_messaging)`
+11. `The user taps the button in the message`
+12. `The contact is saved in our tool`
+
+**Não grave:** código, banco de dados, ou o painel de desenvolvedores da Meta.
+
+Ferramentas: gravador do Windows (`Win + Alt + R`), OBS ou Loom.
+MP4, até 500 MB.
 
 ---
 
@@ -160,8 +196,13 @@ comentários de páginas que não são nossas.)*
 
 | Reprovou por | Como evitar |
 |---|---|
+| **Vídeo começa já conectado** | Desconecte as páginas antes e refaça o login na gravação |
+| **Tela de consentimento não aparece** | Passe devagar nela, com as permissões legíveis |
+| **Interface em português sem legenda** | Legendas em inglês (modelo na Parte 2.4) |
+| Permissão pedida não aparece em uso | Cada permissão precisa de uma cena que a demonstre |
 | Vídeo não mostra a mensagem chegando | Filme a tela do Messenger do testador recebendo |
 | Vídeo mostra código ou o painel de dev | Grave só o que um usuário comum veria |
+| Cursor escondido ou baixa resolução | Mouse visível, 1080p |
 | Política de Privacidade inacessível | Confirme que `/privacidade` abre sem login |
 | Empresa da política ≠ negócio verificado | Resolva antes de enviar (ver topo deste guia) |
 | Descrição genérica | Use os textos acima: dizem o dado lido e o porquê |
@@ -192,7 +233,9 @@ Se falhar, a tela de Comentários agora mostra o motivo já traduzido — inclus
 - [x] Verificação do Negócio aprovada — 17/05/2026
 - [ ] Testador adicionado e convite aceito
 - [ ] Fluxo testado de ponta a ponta com o testador
-- [ ] Vídeo gravado (comentário → mensagem → botão → painel)
+- [ ] Páginas desconectadas para poder filmar a reconexão
+- [ ] Vídeo gravado, começando pelo login e pela tela de consentimento
+- [ ] Legendas em inglês adicionadas
 - [ ] `pages_messaging` solicitada com descrição e vídeo
 - [ ] `pages_read_engagement` solicitada com descrição e vídeo
 - [ ] Aprovação recebida
