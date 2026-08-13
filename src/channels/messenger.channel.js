@@ -5,6 +5,7 @@ import { leads } from '../leads.js';
 import { rastrearBotoes } from '../tracking.js';
 import { montarMensagens } from '../messageContent.js';
 import { contextoDoLead, interpolarConteudo } from '../variables.js';
+import { explicarErroDaMeta } from '../grafoErros.js';
 
 const GRAPH_VERSION = process.env.FB_GRAPH_VERSION ?? 'v21.0';
 const GRAPH_URL = `https://graph.facebook.com/${GRAPH_VERSION}`;
@@ -209,7 +210,9 @@ export const messengerChannel = {
     await recordMessage(lead, workspaceId, 'failed', {
       executionId: ctx.executionId,
       broadcastId: ctx.broadcastId,
-      errorReason: ultimoErro?.message,
+      // Guarda o motivo já explicado: quem abre a tela de Comentários precisa
+      // saber o que fazer, não decifrar o vocabulário da Graph API.
+      errorReason: explicarErroDaMeta(ultimoErro?.message),
     });
     await leads.recordDeliveryResult(lead.id, {
       ok: false,

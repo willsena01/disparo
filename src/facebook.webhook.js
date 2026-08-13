@@ -6,6 +6,7 @@ import { claimComment, attachMatch } from './comments.js';
 import { matchRule, responderPublicamente } from './commentRules.js';
 import { messenger } from './messenger.js';
 import { interpolar, contextoDoLead } from './variables.js';
+import { explicarErroDaMeta } from './grafoErros.js';
 
 // Extrai os comentários novos de um payload de webhook do Facebook.
 //
@@ -128,7 +129,7 @@ export async function onCommentReceived(comment) {
       });
       respondeuPrivado = true;
     } catch (err) {
-      erros.push(`DM: ${err.message}`);
+      erros.push(`DM: ${explicarErroDaMeta(err.message)}`);
     }
   }
 
