@@ -12,61 +12,38 @@ quem opera páginas de outras empresas. Suas 5 páginas são suas.
 
 ---
 
-## Antes de começar — alinhe a empresa
+## Empresa — RESOLVIDO
 
-O app está no portfólio empresarial **"Victor Dos Santos Dias - Api250"**
-(ID `1713868336649164`), mas as páginas legais publicadas (Política de
-Privacidade e Termos) dizem:
+O portfólio empresarial **"Victor Dos Santos Dias - Api250"**
+(ID `1713868336649164`) **já está verificado desde 17/05/2026**. A etapa mais
+lenta do processo está pronta.
 
-- Piracicaba Marketing Digital
-- CNPJ 37.926.095/0001-89
-- societario@smccontabil.com.br
+Entidade verificada:
 
-A Meta cruza esses dados na análise. Se não baterem, reprova por
-inconsistência — e você perde o ciclo inteiro.
+- 58.338.495 VICTOR DOS SANTOS DIAS
+- CNPJ 58.338.495/0001-43
+- Av. Oliveira 9A, Salvador/BA, CEP 41.225-850
 
-**O nome do portfólio não precisa mudar.** A Meta verifica os *dados legais*
-que você preenche em Informações da empresa, não o rótulo do portfólio. Então
-basta preencher lá a razão social e o CNPJ reais — os mesmos que já estão nas
-páginas públicas.
+As páginas legais publicadas foram alinhadas a esses dados em `src/legal.js`,
+porque a análise cruza a política com a empresa verificada e divergência
+reprova. Antes elas diziam Piracicaba Marketing Digital.
 
-Se preferir o contrário (manter Victor Dos Santos Dias como entidade legal),
-altere as variáveis `EMPRESA_NOME`, `EMPRESA_DOC` e `EMPRESA_EMAIL` na Vercel
-e faça redeploy — as páginas legais se atualizam sozinhas.
+Nada a fazer aqui — pule para a Parte 2.
 
 ---
 
-## Parte 1 — Verificação do Negócio
+## Parte 1 — Verificação do Negócio ✅ FEITA
 
-Obrigatória para pedir Acesso Avançado. É a etapa mais lenta: separe os
-documentos antes.
+Concluída em 17/05/2026. Confira em
+[business.facebook.com/settings](https://business.facebook.com/settings) →
+**Informações da empresa** → *Status de verificação da empresa*.
 
-1. Acesse [business.facebook.com/settings](https://business.facebook.com/settings)
-2. Confira no topo qual **portfólio empresarial** está selecionado — precisa ser
-   o dono do app "Disparo OK"
-3. Menu da esquerda → **Informações da empresa** (é o primeiro item)
-
-   Não confunda com **Central de Segurança**: aquela tela é sobre segurança de
-   anúncios (domínios confiáveis, passkeys) e não tem relação com a análise do
-   app. Os alertas "Action needed" de lá podem ser ignorados aqui.
-
-4. Preencha os dados legais e clique em **Iniciar verificação**.
-   Escreva exatamente como está no cartão CNPJ — um "LTDA" faltando reprova:
-   - Razão social
-   - CNPJ
-   - Endereço completo
-   - Telefone
-   - Site (`https://disparo-gx97.vercel.app`)
-6. Envie **um** destes documentos:
-   - Cartão CNPJ (comprovante de inscrição da Receita Federal)
-   - Contrato social
-   - Conta de luz/água/telefone no nome da empresa (últimos 90 dias)
-7. Confirme por telefone, SMS ou e-mail do domínio
-
-**Prazo:** 2 a 10 dias úteis.
-
-**Reprova quando:** o nome no documento difere do digitado (um "LTDA" faltando
-já basta), o documento está cortado ou ilegível, ou o endereço não confere.
+(Se um dia precisar refazer para outro portfólio: é nessa mesma tela, botão
+**Iniciar verificação**, com cartão CNPJ ou contrato social, e leva de 2 a 10
+dias úteis. O nome digitado tem que bater caractere por caractere com o
+documento — um "LTDA" faltando reprova. Não confunda com a **Central de
+Segurança**, que trata de segurança de anúncios e não tem relação com a análise
+do app.)
 
 ---
 
@@ -211,9 +188,8 @@ Se falhar, a tela de Comentários agora mostra o motivo já traduzido — inclus
 
 ## Checklist
 
-- [ ] Decidido qual CNPJ vale (app e política batendo)
-- [ ] Verificação do Negócio enviada
-- [ ] Verificação do Negócio aprovada
+- [x] Empresa alinhada (política = empresa verificada na Meta)
+- [x] Verificação do Negócio aprovada — 17/05/2026
 - [ ] Testador adicionado e convite aceito
 - [ ] Fluxo testado de ponta a ponta com o testador
 - [ ] Vídeo gravado (comentário → mensagem → botão → painel)

@@ -430,11 +430,13 @@ direto. O texto não é genérico: descreve exatamente o que o sistema coleta
 leitura, cliques, tags), as permissões pedidas no OAuth e os dois caminhos de
 exclusão. Descrever a mais ou a menos é o que reprova na revisão.
 
-O responsável (Piracicaba Marketing Digital, CNPJ 37.926.095/0001-89,
-societario@smccontabil.com.br) é o padrão em `src/legal.js`, sobrescrevível por
+O responsável (58.338.495 VICTOR DOS SANTOS DIAS, CNPJ 58.338.495/0001-43) é o
+padrão em `src/legal.js`, sobrescrevível por
 `EMPRESA_NOME`/`EMPRESA_DOC`/`EMPRESA_EMAIL`/`EMPRESA_ENDERECO` para quem rodar
-sob outra razão social. Sem identificação preenchida a página marca o campo em
-destaque em vez de publicar em branco.
+sob outra razão social. Precisa ser a mesma empresa verificada no portfólio
+empresarial da Meta: a análise do app cruza os dois e divergência reprova. Sem
+identificação preenchida a página marca o campo em destaque em vez de publicar
+em branco.
 
 ## Autenticação
 

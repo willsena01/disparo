@@ -8,16 +8,21 @@ import { baseUrl, SCOPES } from './facebookOAuth.js';
 // comenta, texto do comentário, status de entrega e leitura, cliques em link.
 // Descrever a mais ou a menos é o que reprova na revisão.
 //
-// A identidade do responsável (Piracicaba Marketing Digital) é o padrão, e
-// continua sobrescrevível por ambiente para quem rodar a ferramenta sob outra
+// A identidade do responsável precisa ser a MESMA empresa verificada no
+// portfólio empresarial da Meta — a análise do app cruza os dois, e divergência
+// reprova por inconsistência. Aqui está a que consta como verificada:
+// 58.338.495 VICTOR DOS SANTOS DIAS, verificada em 17/05/2026.
+//
+// Continua sobrescrevível por ambiente para quem rodar a ferramenta sob outra
 // razão social — é o único dado aqui que não dá pra deduzir do código.
 export function dadosDaEmpresa() {
   return {
-    nome: process.env.EMPRESA_NOME ?? 'Piracicaba Marketing Digital',
-    documento: process.env.EMPRESA_DOC ?? 'CNPJ 37.926.095/0001-89',
-    email: process.env.EMPRESA_EMAIL ?? 'societario@smccontabil.com.br',
-    endereco: process.env.EMPRESA_ENDERECO ?? null,
-    atualizadoEm: process.env.LEGAL_ATUALIZADO_EM ?? '11 de agosto de 2026',
+    nome: process.env.EMPRESA_NOME ?? '58.338.495 VICTOR DOS SANTOS DIAS',
+    documento: process.env.EMPRESA_DOC ?? 'CNPJ 58.338.495/0001-43',
+    email: process.env.EMPRESA_EMAIL ?? '2004meloliveira@gmail.com',
+    endereco: process.env.EMPRESA_ENDERECO
+      ?? 'Av. Oliveira 9A, Salvador/BA, CEP 41.225-850',
+    atualizadoEm: process.env.LEGAL_ATUALIZADO_EM ?? '12 de agosto de 2026',
   };
 }
 
