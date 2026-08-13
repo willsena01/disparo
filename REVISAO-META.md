@@ -12,23 +12,27 @@ quem opera páginas de outras empresas. Suas 5 páginas são suas.
 
 ---
 
-## Antes de começar — decida o CNPJ
+## Antes de começar — alinhe a empresa
 
-O app hoje está sob o negócio **"Victor Dos Santos Dias - Api250"**, mas as
-páginas legais publicadas (Política de Privacidade e Termos) dizem:
+O app está no portfólio empresarial **"Victor Dos Santos Dias - Api250"**
+(ID `1713868336649164`), mas as páginas legais publicadas (Política de
+Privacidade e Termos) dizem:
 
 - Piracicaba Marketing Digital
 - CNPJ 37.926.095/0001-89
 - societario@smccontabil.com.br
 
-**Os dois precisam ser a mesma empresa.** Se o negócio verificado for um e a
-política disser outro, a análise reprova por inconsistência. Escolha um e
-ajuste o outro lado antes de enviar:
+A Meta cruza esses dados na análise. Se não baterem, reprova por
+inconsistência — e você perde o ciclo inteiro.
 
-- Manter Piracicaba Marketing Digital → crie/transfira o app para um negócio
-  com esse CNPJ no Business Manager
-- Manter Victor Dos Santos Dias → altere as variáveis `EMPRESA_NOME`,
-  `EMPRESA_DOC` e `EMPRESA_EMAIL` na Vercel e faça redeploy
+**O nome do portfólio não precisa mudar.** A Meta verifica os *dados legais*
+que você preenche em Informações da empresa, não o rótulo do portfólio. Então
+basta preencher lá a razão social e o CNPJ reais — os mesmos que já estão nas
+páginas públicas.
+
+Se preferir o contrário (manter Victor Dos Santos Dias como entidade legal),
+altere as variáveis `EMPRESA_NOME`, `EMPRESA_DOC` e `EMPRESA_EMAIL` na Vercel
+e faça redeploy — as páginas legais se atualizam sozinhas.
 
 ---
 
@@ -37,11 +41,17 @@ ajuste o outro lado antes de enviar:
 Obrigatória para pedir Acesso Avançado. É a etapa mais lenta: separe os
 documentos antes.
 
-1. Acesse [business.facebook.com](https://business.facebook.com)
-2. Menu → **Configurações do negócio**
-3. **Central de Segurança** (ou *Informações do negócio*)
-4. Clique em **Iniciar verificação**
-5. Preencha exatamente como está no cartão CNPJ:
+1. Acesse [business.facebook.com/settings](https://business.facebook.com/settings)
+2. Confira no topo qual **portfólio empresarial** está selecionado — precisa ser
+   o dono do app "Disparo OK"
+3. Menu da esquerda → **Informações da empresa** (é o primeiro item)
+
+   Não confunda com **Central de Segurança**: aquela tela é sobre segurança de
+   anúncios (domínios confiáveis, passkeys) e não tem relação com a análise do
+   app. Os alertas "Action needed" de lá podem ser ignorados aqui.
+
+4. Preencha os dados legais e clique em **Iniciar verificação**.
+   Escreva exatamente como está no cartão CNPJ — um "LTDA" faltando reprova:
    - Razão social
    - CNPJ
    - Endereço completo
